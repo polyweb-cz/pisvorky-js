@@ -1,0 +1,1 @@
+**R1:** Scope creep → držet se MVP.

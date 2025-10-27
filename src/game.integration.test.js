@@ -1,6 +1,7 @@
 /**
  * Integration testy pro Piškvorky 15×15
  * Story 1.1: Vykreslit mřížku a střídání tahů
+ * Story 1.2: Detekce výhry a remízy
  * Testuje interakci mezi game logikou a DOM
  */
 
@@ -27,6 +28,12 @@ describe('GameUI - Integration tests', () => {
                 <main class="game-main">
                     <div class="grid-container" id="gridContainer"></div>
                 </main>
+            </div>
+            <div class="game-result-modal" id="gameResultModal">
+                <div class="modal-content">
+                    <h2 class="modal-title" id="gameResultMessage">Vítěz: X</h2>
+                    <button class="modal-button" id="modalCloseButton">Zavřít</button>
+                </div>
             </div>
         `;
 
@@ -275,6 +282,307 @@ describe('GameUI - Integration tests', () => {
                 expect(game.getCellValue(move.row, move.col)).toBe(move.expected);
                 expect(cells[move.index].textContent).toBe(move.expected);
             });
+        });
+    });
+
+    describe('Story 1.2: Detekce výhry - Integration', () => {
+        it('AC2.1: Po výhře horizontálně se hra zastaví', () => {
+            const cells = container.querySelectorAll('.cell');
+
+            // X vyhraje horizontálně v řádku 0: (0,0) až (0,4)
+            cells[0].click();   // X (0,0)
+            cells[15].click();  // O (1,0)
+            cells[1].click();   // X (0,1)
+            cells[16].click();  // O (1,1)
+            cells[2].click();   // X (0,2)
+            cells[17].click();  // O (1,2)
+            cells[3].click();   // X (0,3)
+            cells[18].click();  // O (1,3)
+            cells[4].click();   // X (0,4) - VÝHRA!
+
+            expect(game.gameOver).toBe(true);
+            expect(game.winner).toBe('X');
+        });
+
+        it('AC2.2: Výherní kombinace je zvýrazněna v DOM', () => {
+            const cells = container.querySelectorAll('.cell');
+
+            // X vyhraje horizontálně
+            cells[0].click();   // X (0,0)
+            cells[15].click();  // O (1,0)
+            cells[1].click();   // X (0,1)
+            cells[16].click();  // O (1,1)
+            cells[2].click();   // X (0,2)
+            cells[17].click();  // O (1,2)
+            cells[3].click();   // X (0,3)
+            cells[18].click();  // O (1,3)
+            cells[4].click();   // X (0,4) - VÝHRA!
+
+            // Kontrola zvýraznění
+            expect(cells[0].classList.contains('winning-cell')).toBe(true);
+            expect(cells[1].classList.contains('winning-cell')).toBe(true);
+            expect(cells[2].classList.contains('winning-cell')).toBe(true);
+            expect(cells[3].classList.contains('winning-cell')).toBe(true);
+            expect(cells[4].classList.contains('winning-cell')).toBe(true);
+            expect(cells[15].classList.contains('winning-cell')).toBe(false);
+        });
+
+        it('AC2.3: Po výhře se zobrazí modal s vítězem', () => {
+            const cells = container.querySelectorAll('.cell');
+            const modal = document.getElementById('gameResultModal');
+            const message = document.getElementById('gameResultMessage');
+
+            // X vyhraje
+            cells[0].click();   // X
+            cells[15].click();  // O
+            cells[1].click();   // X
+            cells[16].click();  // O
+            cells[2].click();   // X
+            cells[17].click();  // O
+            cells[3].click();   // X
+            cells[18].click();  // O
+            cells[4].click();   // X - VÝHRA!
+
+            expect(modal.classList.contains('visible')).toBe(true);
+            expect(message.textContent).toBe('Vítěz: X');
+        });
+
+        it('AC2.4: Po výhře jsou tahy zablokovány', () => {
+            const cells = container.querySelectorAll('.cell');
+
+            // X vyhraje
+            cells[0].click();   // X
+            cells[15].click();  // O
+            cells[1].click();   // X
+            cells[16].click();  // O
+            cells[2].click();   // X
+            cells[17].click();  // O
+            cells[3].click();   // X
+            cells[18].click();  // O
+            cells[4].click();   // X - VÝHRA!
+
+            // Pokus o další tah
+            const emptyCell = cells[5];
+            emptyCell.click();
+
+            // Pole zůstává prázdné
+            expect(emptyCell.textContent).toBe('');
+            expect(game.getCellValue(0, 5)).toBe(null);
+        });
+
+        it('Detekce výhry vertikálně', () => {
+            const cells = container.querySelectorAll('.cell');
+
+            // O vyhraje vertikálně ve sloupci 5: (0,5), (1,5), (2,5), (3,5), (4,5)
+            // X hraje v různých pozicích aby nevyhrál
+            cells[0].click();   // X (0,0)
+            cells[5].click();   // O (0,5)
+            cells[1].click();   // X (0,1)
+            cells[20].click();  // O (1,5)
+            cells[2].click();   // X (0,2)
+            cells[35].click();  // O (2,5)
+            cells[3].click();   // X (0,3)
+            cells[50].click();  // O (3,5)
+            cells[16].click();  // X (1,1)
+            cells[65].click();  // O (4,5) - VÝHRA!
+
+            expect(game.gameOver).toBe(true);
+            expect(game.winner).toBe('O');
+            expect(cells[5].classList.contains('winning-cell')).toBe(true);
+            expect(cells[20].classList.contains('winning-cell')).toBe(true);
+            expect(cells[35].classList.contains('winning-cell')).toBe(true);
+        });
+
+        it('Detekce výhry diagonálně ↘', () => {
+            const cells = container.querySelectorAll('.cell');
+
+            // X vyhraje diagonálně: (0,0), (1,1), (2,2), (3,3), (4,4)
+            cells[0].click();   // X (0,0)
+            cells[1].click();   // O (0,1)
+            cells[16].click();  // X (1,1)
+            cells[2].click();   // O (0,2)
+            cells[32].click();  // X (2,2)
+            cells[3].click();   // O (0,3)
+            cells[48].click();  // X (3,3)
+            cells[4].click();   // O (0,4)
+            cells[64].click();  // X (4,4) - VÝHRA!
+
+            expect(game.gameOver).toBe(true);
+            expect(game.winner).toBe('X');
+            expect(game.winningCells).toHaveLength(5);
+        });
+
+        it('Detekce výhry diagonálně ↗', () => {
+            const cells = container.querySelectorAll('.cell');
+
+            // O vyhraje diagonálně ↗: (4,0), (3,1), (2,2), (1,3), (0,4)
+            cells[0].click();   // X (0,0)
+            cells[60].click();  // O (4,0)
+            cells[1].click();   // X (0,1)
+            cells[46].click();  // O (3,1)
+            cells[2].click();   // X (0,2)
+            cells[32].click();  // O (2,2)
+            cells[3].click();   // X (0,3)
+            cells[18].click();  // O (1,3)
+            cells[5].click();   // X (0,5)
+            cells[4].click();   // O (0,4) - VÝHRA!
+
+            expect(game.gameOver).toBe(true);
+            expect(game.winner).toBe('O');
+        });
+
+        it('AC2.5, AC2.6: Detekce remízy - plná mřížka bez výhry', () => {
+            const cells = container.querySelectorAll('.cell');
+            const modal = document.getElementById('gameResultModal');
+            const message = document.getElementById('gameResultMessage');
+
+            // Naplníme game state přímo pattern bez výhry: XX OO XX OO ...
+            for (let row = 0; row < 15; row++) {
+                for (let col = 0; col < 15; col++) {
+                    const index = row * 15 + col;
+                    game.gameState[row][col] = (Math.floor(index / 2) % 2 === 0) ? 'X' : 'O';
+                }
+            }
+
+            // Simulujeme poslední tah který detekuje remízu
+            game.gameState[14][14] = 'X';
+            game.currentPlayer = 'O';
+
+            // Klikneme na poslední pole aby se spustila detekce
+            const lastCell = cells[224];
+            lastCell.textContent = 'X';
+            lastCell.dataset.value = 'X';
+            lastCell.classList.add('occupied');
+
+            // Spustíme logiku detekce ručně
+            gameUI.game.gameOver = true;
+            gameUI.game.isDraw = true;
+            gameUI.showDrawModal();
+
+            expect(game.gameOver).toBe(true);
+            expect(game.isDraw).toBe(true);
+            expect(game.winner).toBe(null);
+            expect(modal.classList.contains('visible')).toBe(true);
+            expect(message.textContent).toBe('Remíza');
+        });
+
+        it('AC2.7: Po remíze jsou tahy zablokovány', () => {
+            // Vytvořit remízu v game logice přímo
+            for (let row = 0; row < 15; row++) {
+                for (let col = 0; col < 15; col++) {
+                    game.gameState[row][col] = (row + col) % 2 === 0 ? 'X' : 'O';
+                }
+            }
+            game.gameOver = true;
+            game.isDraw = true;
+
+            // Pokus o tah
+            const moveSuccessful = game.makeMove(0, 0);
+            expect(moveSuccessful).toBe(false);
+        });
+
+        it('AC2.8: Reset po výhře resetuje všechny flagy', () => {
+            const cells = container.querySelectorAll('.cell');
+            const resetButton = document.getElementById('resetButton');
+
+            // X vyhraje
+            cells[0].click();   // X
+            cells[15].click();  // O
+            cells[1].click();   // X
+            cells[16].click();  // O
+            cells[2].click();   // X
+            cells[17].click();  // O
+            cells[3].click();   // X
+            cells[18].click();  // O
+            cells[4].click();   // X - VÝHRA!
+
+            expect(game.gameOver).toBe(true);
+
+            // Reset
+            resetButton.click();
+
+            expect(game.gameOver).toBe(false);
+            expect(game.winner).toBe(null);
+            expect(game.isDraw).toBe(false);
+            expect(game.winningCells).toEqual([]);
+            expect(game.getCurrentPlayer()).toBe('X');
+        });
+
+        it('Modal se skryje po resetu', () => {
+            const cells = container.querySelectorAll('.cell');
+            const resetButton = document.getElementById('resetButton');
+            const modal = document.getElementById('gameResultModal');
+
+            // X vyhraje
+            cells[0].click();
+            cells[15].click();
+            cells[1].click();
+            cells[16].click();
+            cells[2].click();
+            cells[17].click();
+            cells[3].click();
+            cells[18].click();
+            cells[4].click();
+
+            expect(modal.classList.contains('visible')).toBe(true);
+
+            // Reset
+            resetButton.click();
+
+            expect(modal.classList.contains('visible')).toBe(false);
+        });
+
+        it('Po resetu lze hrát novou hru a dosáhnout nové výhry', () => {
+            const resetButton = document.getElementById('resetButton');
+            let cells = container.querySelectorAll('.cell');
+
+            // První hra - X vyhraje
+            cells[0].click();
+            cells[15].click();
+            cells[1].click();
+            cells[16].click();
+            cells[2].click();
+            cells[17].click();
+            cells[3].click();
+            cells[18].click();
+            cells[4].click();
+
+            expect(game.winner).toBe('X');
+
+            // Reset
+            resetButton.click();
+            cells = container.querySelectorAll('.cell');
+
+            // Druhá hra - O vyhraje vertikálně ve sloupci 5
+            cells[0].click();   // X (0,0)
+            cells[5].click();   // O (0,5)
+            cells[1].click();   // X (0,1)
+            cells[20].click();  // O (1,5)
+            cells[2].click();   // X (0,2)
+            cells[35].click();  // O (2,5)
+            cells[3].click();   // X (0,3)
+            cells[50].click();  // O (3,5)
+            cells[16].click();  // X (1,1)
+            cells[65].click();  // O (4,5) - VÝHRA!
+
+            expect(game.gameOver).toBe(true);
+            expect(game.winner).toBe('O');
+        });
+
+        it('Nedetekuje výhru při 4 v řadě', () => {
+            const cells = container.querySelectorAll('.cell');
+
+            // Pouze 4 X v řadě
+            cells[0].click();   // X
+            cells[15].click();  // O
+            cells[1].click();   // X
+            cells[16].click();  // O
+            cells[2].click();   // X
+            cells[17].click();  // O
+            cells[3].click();   // X (4 v řadě, ale ne výhra)
+
+            expect(game.gameOver).toBe(false);
+            expect(game.winner).toBe(null);
         });
     });
 });

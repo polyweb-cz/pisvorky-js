@@ -1,7 +1,10 @@
 /**
  * Piškvorky 15×15 - Herní logika
  * Story 1.1: Vykreslit mřížku a střídání tahů
+ * Story 1.2: Detekce výhry a remízy
  */
+
+import { checkGameState } from './win-detector.js';
 
 class TicTacToeGame {
     constructor(size = 15) {
@@ -9,6 +12,10 @@ class TicTacToeGame {
         this.currentPlayer = 'X';
         this.gameState = this.initializeGameState();
         this.moveHistory = [];
+        this.gameOver = false;
+        this.winner = null;
+        this.isDraw = false;
+        this.winningCells = [];
     }
 
     /**
@@ -28,6 +35,11 @@ class TicTacToeGame {
      * @returns {boolean} true pokud byl tah úspěšný, false pokud pozice je již obsazená
      */
     makeMove(row, col) {
+        // AC2.4 & AC2.7: Blokování tahů po výhře/remíze
+        if (this.gameOver) {
+            return false;
+        }
+
         // Validace pozice
         if (row < 0 || row >= this.size || col < 0 || col >= this.size) {
             return false;
@@ -42,8 +54,24 @@ class TicTacToeGame {
         this.gameState[row][col] = this.currentPlayer;
         this.moveHistory.push({ row, col, player: this.currentPlayer });
 
-        // Střídání hráčů
-        this.switchPlayer();
+        // AC2.1: Kontrola výhry/remízy po tahu
+        const gameStateResult = checkGameState(this.gameState, row, col, this.size);
+
+        if (gameStateResult.isGameOver) {
+            this.gameOver = true;
+
+            if (gameStateResult.isWin) {
+                // AC2.1, AC2.2: Výhra detekována
+                this.winner = gameStateResult.winner;
+                this.winningCells = gameStateResult.winningCells;
+            } else if (gameStateResult.isDraw) {
+                // AC2.5: Remíza detekována
+                this.isDraw = true;
+            }
+        } else {
+            // Střídání hráčů jen když hra pokračuje
+            this.switchPlayer();
+        }
 
         return true;
     }
@@ -80,11 +108,16 @@ class TicTacToeGame {
 
     /**
      * Reset hry do výchozího stavu
+     * AC2.8: "Nová hra" resetuje stav a hraje X
      */
     reset() {
         this.currentPlayer = 'X';
         this.gameState = this.initializeGameState();
         this.moveHistory = [];
+        this.gameOver = false;
+        this.winner = null;
+        this.isDraw = false;
+        this.winningCells = [];
     }
 
     /**
@@ -113,6 +146,9 @@ class GameUI {
         this.gridContainer = document.getElementById('gridContainer');
         this.currentPlayerElement = document.getElementById('currentPlayer');
         this.resetButton = document.getElementById('resetButton');
+        this.gameResultModal = document.getElementById('gameResultModal');
+        this.gameResultMessage = document.getElementById('gameResultMessage');
+        this.modalCloseButton = document.getElementById('modalCloseButton');
 
         this.init();
     }
@@ -166,6 +202,22 @@ class GameUI {
         this.resetButton.addEventListener('click', () => {
             this.handleReset();
         });
+
+        // Modal close button
+        if (this.modalCloseButton) {
+            this.modalCloseButton.addEventListener('click', () => {
+                this.hideModal();
+            });
+        }
+
+        // Zavření modalu kliknutím mimo
+        if (this.gameResultModal) {
+            this.gameResultModal.addEventListener('click', (e) => {
+                if (e.target === this.gameResultModal) {
+                    this.hideModal();
+                }
+            });
+        }
     }
 
     /**
@@ -184,6 +236,19 @@ class GameUI {
             this.updateCell(cellElement, row, col);
             // Update indikátoru tahu
             this.updateTurnIndicator();
+
+            // AC2.1, AC2.2, AC2.3: Kontrola game over
+            if (this.game.gameOver) {
+                if (this.game.winner) {
+                    // AC2.2: Zvýraznění výherní kombinace
+                    this.highlightWinningCells();
+                    // AC2.3: Zobrazení modalu s vítězem
+                    this.showWinnerModal(this.game.winner);
+                } else if (this.game.isDraw) {
+                    // AC2.6: Zobrazení remízy
+                    this.showDrawModal();
+                }
+            }
         }
     }
 
@@ -211,11 +276,67 @@ class GameUI {
 
     /**
      * Obsluha resetu hry
+     * AC2.8: Reset vrátí hru do výchozího stavu
      */
     handleReset() {
         this.game.reset();
         this.renderGrid();
         this.updateTurnIndicator();
+        this.hideModal();
+    }
+
+    /**
+     * AC2.2: Zvýraznění výherních polí
+     */
+    highlightWinningCells() {
+        if (!this.game.winningCells || this.game.winningCells.length === 0) {
+            return;
+        }
+
+        this.game.winningCells.forEach(([row, col]) => {
+            const cell = this.gridContainer.querySelector(
+                `[data-row="${row}"][data-col="${col}"]`
+            );
+            if (cell) {
+                cell.classList.add('winning-cell');
+            }
+        });
+    }
+
+    /**
+     * AC2.3: Zobrazení modalu s vítězem
+     * @param {string} winner - 'X' nebo 'O'
+     */
+    showWinnerModal(winner) {
+        if (!this.gameResultModal || !this.gameResultMessage) {
+            return;
+        }
+
+        this.gameResultMessage.textContent = `Vítěz: ${winner}`;
+        this.gameResultModal.classList.add('visible');
+    }
+
+    /**
+     * AC2.6: Zobrazení modalu s remízou
+     */
+    showDrawModal() {
+        if (!this.gameResultModal || !this.gameResultMessage) {
+            return;
+        }
+
+        this.gameResultMessage.textContent = 'Remíza';
+        this.gameResultModal.classList.add('visible');
+    }
+
+    /**
+     * Skrytí modalu
+     */
+    hideModal() {
+        if (!this.gameResultModal) {
+            return;
+        }
+
+        this.gameResultModal.classList.remove('visible');
     }
 }
 

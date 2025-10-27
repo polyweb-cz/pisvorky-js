@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piškvorky 15×15</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>Piškvorky 15×15</h1>
+            <div class="turn-indicator">
+                <span class="turn-label">Na tahu:</span>
+                <span class="current-player" id="currentPlayer">X</span>
+            </div>
+            <button class="reset-button" id="resetButton">Nová hra</button>
+        </header>
+
+        <main class="game-main">
+            <div class="grid-container" id="gridContainer">
+                <!-- Grid bude vygenerován JavaScriptem -->
+            </div>
+        </main>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

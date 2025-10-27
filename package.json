@@ -1,0 +1,23 @@
+{
+  "name": "piskvorky-15x15",
+  "version": "1.0.0",
+  "description": "Piškvorky 15×15 - MVP",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["piškvorky", "tic-tac-toe", "game"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitest/ui": "^1.0.4",
+    "happy-dom": "^12.10.3",
+    "vite": "^5.0.8",
+    "vitest": "^1.0.4"
+  }
+}

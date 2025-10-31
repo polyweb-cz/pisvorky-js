@@ -69,6 +69,35 @@ body {
     color: #3498db;
 }
 
+/* Controls - flexbox kontejner pro checkbox a tlačítko */
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Obstacle toggle - checkbox s labelem */
+.obstacle-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.obstacle-toggle input[type="checkbox"] {
+    cursor: pointer;
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.obstacle-toggle span {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+}
+
 /* Tlačítko reset */
 .reset-button {
     padding: 0.75rem 1.5rem;
@@ -80,7 +109,6 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    margin-top: 1rem;
 }
 
 .reset-button:hover {
@@ -142,6 +170,22 @@ body {
 
 .cell[data-value="O"] {
     color: #3498db;
+}
+
+/* Zaminovaná pole (překážky) - černá plocha s ikonou bomby */
+.cell.obstacle {
+    background: #000;
+    color: white;
+    cursor: not-allowed;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cell.obstacle::before {
+    content: "💣";
+    font-weight: bold;
 }
 
 /* AC2.2: Zvýraznění výherních polí */

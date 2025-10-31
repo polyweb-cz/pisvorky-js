@@ -2,9 +2,11 @@
  * Piškvorky 15×15 - Herní logika
  * Story 1.1: Vykreslit mřížku a střídání tahů
  * Story 1.2: Detekce výhry a remízy
+ * Story 1.4: Režim s překážkami
  */
 
 import { checkGameState } from './win-detector.js';
+import { generateRandomObstacles, isObstacleSet, obstaclesToSet } from './obstacles.js';
 
 class TicTacToeGame {
     constructor(size = 15) {
@@ -16,6 +18,8 @@ class TicTacToeGame {
         this.winner = null;
         this.isDraw = false;
         this.winningCells = [];
+        this.obstacles = []; // AC4.4: Pole s pozicemi zaminovaných polí
+        this.obstaclesSet = new Set(); // Pro rychlé hledání O(1)
     }
 
     /**
@@ -32,7 +36,7 @@ class TicTacToeGame {
      * Přidá tah na danou pozici
      * @param {number} row - řádek (0-14)
      * @param {number} col - sloupec (0-14)
-     * @returns {boolean} true pokud byl tah úspěšný, false pokud pozice je již obsazená
+     * @returns {boolean} true pokud byl tah úspěšný, false pokud pozice je již obsazená nebo zaminovaná
      */
     makeMove(row, col) {
         // AC2.4 & AC2.7: Blokování tahů po výhře/remíze
@@ -42,6 +46,11 @@ class TicTacToeGame {
 
         // Validace pozice
         if (row < 0 || row >= this.size || col < 0 || col >= this.size) {
+            return false;
+        }
+
+        // AC4.6: Kontrola, zda je pole zaminované
+        if (isObstacleSet(row, col, this.obstaclesSet)) {
             return false;
         }
 
@@ -109,6 +118,7 @@ class TicTacToeGame {
     /**
      * Reset hry do výchozího stavu
      * AC2.8: "Nová hra" resetuje stav a hraje X
+     * AC4: Překážky se resetují (generují se nové nebo se odstraní)
      */
     reset() {
         this.currentPlayer = 'X';
@@ -118,6 +128,24 @@ class TicTacToeGame {
         this.winner = null;
         this.isDraw = false;
         this.winningCells = [];
+        // Překážky zůstávají - budou regenerovány v GameUI.handleReset()
+    }
+
+    /**
+     * Nastaví překážky pro hru
+     * @param {Array<Array<number>>} obstacles - Pole [[row, col], ...]
+     */
+    setObstacles(obstacles) {
+        this.obstacles = obstacles;
+        this.obstaclesSet = obstaclesToSet(obstacles);
+    }
+
+    /**
+     * Vymaže všechny překážky
+     */
+    clearObstacles() {
+        this.obstacles = [];
+        this.obstaclesSet = new Set();
     }
 
     /**
@@ -149,6 +177,7 @@ class GameUI {
         this.gameResultModal = document.getElementById('gameResultModal');
         this.gameResultMessage = document.getElementById('gameResultMessage');
         this.modalCloseButton = document.getElementById('modalCloseButton');
+        this.obstaclesCheckbox = document.getElementById('obstaclesCheckbox'); // AC4.1
 
         this.init();
     }
@@ -164,6 +193,7 @@ class GameUI {
 
     /**
      * Vykreslení mřížky 15×15
+     * AC4.5: Zaminovaná pole se zobrazují jako černá plocha s ikonou
      */
     renderGrid() {
         this.gridContainer.innerHTML = '';
@@ -175,11 +205,17 @@ class GameUI {
                 cell.dataset.row = row;
                 cell.dataset.col = col;
 
-                const value = this.game.getCellValue(row, col);
-                if (value) {
-                    cell.textContent = value;
-                    cell.dataset.value = value;
-                    cell.classList.add('occupied');
+                // AC4.5: Kontrola, zda je pole zaminované
+                if (this.game.obstacles && this.game.obstacles.some(([r, c]) => r === row && c === col)) {
+                    cell.classList.add('obstacle');
+                    cell.classList.add('occupied'); // AC4.7: Také occupied pro consistency
+                } else {
+                    const value = this.game.getCellValue(row, col);
+                    if (value) {
+                        cell.textContent = value;
+                        cell.dataset.value = value;
+                        cell.classList.add('occupied');
+                    }
                 }
 
                 this.gridContainer.appendChild(cell);
@@ -292,6 +328,17 @@ class GameUI {
      */
     handleReset() {
         this.game.reset();
+
+        // AC4.4: Pokud je checkbox zaškrtnutý, vygeneruj překážky
+        // AC4.8: Checkbox zůstává zaškrtnutý
+        if (this.obstaclesCheckbox && this.obstaclesCheckbox.checked) {
+            const obstacles = generateRandomObstacles(15, this.game.size);
+            this.game.setObstacles(obstacles);
+        } else {
+            // AC4.3: Bez checkboxu - žádné překážky
+            this.game.clearObstacles();
+        }
+
         this.renderGrid();
         this.updateTurnIndicator();
         this.hideModal();

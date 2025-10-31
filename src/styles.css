@@ -57,9 +57,16 @@ body {
 .current-player {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #667eea;
     min-width: 1.5rem;
     text-align: center;
+}
+
+.current-player.player-x {
+    color: #e74c3c;
+}
+
+.current-player.player-o {
+    color: #3498db;
 }
 
 /* Tlačítko reset */

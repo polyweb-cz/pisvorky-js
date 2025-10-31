@@ -269,9 +269,21 @@ class GameUI {
 
     /**
      * Update indikátoru aktuálního hráče
+     * AC3.3, AC3.4: Barva se mění podle hráče (X=červená, O=modrá)
      */
     updateTurnIndicator() {
-        this.currentPlayerElement.textContent = this.game.getCurrentPlayer();
+        const currentPlayer = this.game.getCurrentPlayer();
+        this.currentPlayerElement.textContent = currentPlayer;
+
+        // Odstranit staré třídy
+        this.currentPlayerElement.classList.remove('player-x', 'player-o');
+
+        // Přidat novou třídu podle hráče
+        if (currentPlayer === 'X') {
+            this.currentPlayerElement.classList.add('player-x');
+        } else if (currentPlayer === 'O') {
+            this.currentPlayerElement.classList.add('player-o');
+        }
     }
 
     /**

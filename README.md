@@ -8,7 +8,7 @@ A fully functional 15×15 tic-tac-toe game with win detection, obstacles mode, a
 
 ## 🎮 Live Demo
 
-[Play Piškvorky on GitHub Pages](https://steinbauer.github.io/piskvorky)
+[Play Piškvorky on GitHub Pages](https://polyweb-cz.github.io/pisvorky-js/)
 
 ## 📋 Features
 
@@ -65,14 +65,14 @@ npm run preview    # Preview production build locally
 
 The project automatically deploys to GitHub Pages on every push to the `main` branch.
 
-**Current Live URL:** [https://steinbauer.github.io/piskvorky](https://steinbauer.github.io/piskvorky)
+**Current Live URL:** [https://polyweb-cz.github.io/pisvorky-js/](https://polyweb-cz.github.io/pisvorky-js/)
 
 #### For Your Own Fork:
 
 1. Fork this repository
 2. Push your changes to the `main` branch
 3. GitHub Actions workflow automatically builds and deploys
-4. Visit `https://[your-username].github.io/piskvorky`
+4. Visit `https://[your-username].github.io/[repository-name]/`
 
 For detailed deployment instructions, see [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md).
 
@@ -237,8 +237,8 @@ This script:
 
 ## 🔗 Related Links
 
-- **Repository**: [github.com/steinbauer/piskvorky](https://github.com/steinbauer/piskvorky)
-- **Live Demo**: [steinbauer.github.io/piskvorky](https://steinbauer.github.io/piskvorky)
+- **Repository**: [github.com/polyweb-cz/pisvorky-js](https://github.com/polyweb-cz/pisvorky-js)
+- **Live Demo**: [polyweb-cz.github.io/pisvorky-js](https://polyweb-cz.github.io/pisvorky-js/)
 - **Vite Docs**: [vitejs.dev](https://vitejs.dev)
 - **Vitest Docs**: [vitest.dev](https://vitest.dev)
 

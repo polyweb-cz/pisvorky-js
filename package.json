@@ -9,7 +9,8 @@
     "test:ui": "vitest --ui",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm test && npm run build"
   },
   "keywords": ["piškvorky", "tic-tac-toe", "game"],
   "author": "",

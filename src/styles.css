@@ -420,3 +420,59 @@ body {
         font-size: 0.875rem;
     }
 }
+
+/* Story 3.2: Footer s copyright a linky */
+.footer {
+    margin-top: 3rem;
+    padding: 2rem 1rem;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+    background-color: #fafafa;
+}
+
+.footer p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.footer a {
+    color: #0066cc;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    cursor: pointer;
+}
+
+.footer a:hover {
+    color: #004499;
+    text-decoration: underline;
+}
+
+.footer a:visited {
+    color: #6b5b95;
+}
+
+/* Footer na mobilu */
+@media (max-width: 767px) {
+    .footer {
+        margin-top: 2rem;
+        padding: 1.5rem 1rem;
+    }
+
+    .footer p {
+        font-size: 0.75rem;
+    }
+}
+
+/* Footer na velmi malém mobilu */
+@media (max-width: 359px) {
+    .footer {
+        padding: 1rem 0.5rem;
+    }
+
+    .footer p {
+        font-size: 0.7rem;
+    }
+}

@@ -116,9 +116,27 @@ class TicTacToeGame {
     }
 
     /**
+     * Vrátí počet tahů v aktuální partii
+     * Story 3.1: Detekce, zda byla partie hrana
+     * @returns {number} Počet tahů v gameState
+     */
+    get moveCount() {
+        let count = 0;
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
+                if (this.gameState[row][col] !== null) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
      * Reset hry do výchozího stavu
      * AC2.8: "Nová hra" resetuje stav a hraje X
      * AC4: Překážky se resetují (generují se nové nebo se odstraní)
+     * Story 3.1: Automatický reset bez ohledu na počet tahů
      */
     reset() {
         this.currentPlayer = 'X';

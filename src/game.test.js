@@ -246,3 +246,82 @@ describe('TicTacToeGame - Edge cases', () => {
         expect(game.getCellValue(0, 15)).toBeNull();
     });
 });
+
+describe('TicTacToeGame - moveCount (Story 3.1)', () => {
+    let game;
+
+    beforeEach(() => {
+        game = new TicTacToeGame(15);
+    });
+
+    it('moveCount vrací 0 pro čistý stav hry', () => {
+        expect(game.moveCount).toBe(0);
+    });
+
+    it('moveCount vrací 1 po prvním tahu', () => {
+        game.makeMove(0, 0);
+        expect(game.moveCount).toBe(1);
+    });
+
+    it('moveCount vrací 2 po dvou tazích', () => {
+        game.makeMove(0, 0);  // X
+        game.makeMove(0, 1);  // O
+        expect(game.moveCount).toBe(2);
+    });
+
+    it('moveCount vrací 5 po pěti tazích', () => {
+        game.makeMove(0, 0);  // X
+        game.makeMove(0, 1);  // O
+        game.makeMove(0, 2);  // X
+        game.makeMove(0, 3);  // O
+        game.makeMove(0, 4);  // X
+        expect(game.moveCount).toBe(5);
+    });
+
+    it('moveCount zůstává stejný, když se pokusí přidat na obsazené pole', () => {
+        game.makeMove(0, 0);  // X
+        expect(game.moveCount).toBe(1);
+
+        const result = game.makeMove(0, 0);  // Pokus na obsazené pole
+        expect(result).toBe(false);
+        expect(game.moveCount).toBe(1);  // Počet tahů se nezmění
+    });
+
+    it('moveCount je > 0 když byla partie hrana', () => {
+        // Zahraje pár tahů
+        game.makeMove(0, 0);  // X
+        game.makeMove(0, 1);  // O
+        game.makeMove(0, 2);  // X
+
+        expect(game.moveCount).toBeGreaterThan(0);
+    });
+
+    it('moveCount se resetuje na 0 po volání reset()', () => {
+        game.makeMove(0, 0);
+        game.makeMove(0, 1);
+        game.makeMove(0, 2);
+        expect(game.moveCount).toBe(3);
+
+        game.reset();
+        expect(game.moveCount).toBe(0);
+    });
+
+    it('moveCount vrací správný počet tahů i při více resetech', () => {
+        // První partie
+        game.makeMove(0, 0);
+        game.makeMove(0, 1);
+        expect(game.moveCount).toBe(2);
+
+        // Reset
+        game.reset();
+        expect(game.moveCount).toBe(0);
+
+        // Druhá partie
+        game.makeMove(1, 1);
+        expect(game.moveCount).toBe(1);
+
+        // Druhý reset
+        game.reset();
+        expect(game.moveCount).toBe(0);
+    });
+});

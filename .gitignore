@@ -8,6 +8,9 @@ node_modules/
 # Build output
 dist/
 
+# Root index.html (should only be in src/)
+/index.html
+
 # Test coverage
 coverage/
 

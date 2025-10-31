@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/piskvorky/',
+  base: '/pisvorky-js/',
   root: './src',
   build: {
     outDir: '../dist'

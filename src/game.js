@@ -186,9 +186,57 @@ class GameUI {
      * Inicializace UI - vytvoření mřížky a event listeners
      */
     init() {
+        // AC5.5, AC5.6: Obnovit state checkboxu ze cookies
+        this.restoreObstaclesFromCookie();
         this.renderGrid();
         this.attachEventListeners();
         this.updateTurnIndicator();
+    }
+
+    /**
+     * AC5.5, AC5.6: Obnovit stav checkboxu ze cookies
+     * Pokud je cookies aktivní, automaticky generuje překážky
+     */
+    restoreObstaclesFromCookie() {
+        if (!this.obstaclesCheckbox) return;
+
+        const cookieValue = this.getCookie('obstaclesEnabled');
+        if (cookieValue === 'true') {
+            this.obstaclesCheckbox.checked = true;
+            // Vygeneruj překážky při startu, pokud byl checkbox zapnutý
+            const obstacles = generateRandomObstacles(15, this.game.size);
+            this.game.setObstacles(obstacles);
+        }
+    }
+
+    /**
+     * AC5.3: Získat hodnotu z cookie
+     * @param {string} name - Název cookie
+     * @returns {string|null} Hodnota cookie nebo null
+     */
+    getCookie(name) {
+        const nameEQ = name + '=';
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.indexOf(nameEQ) === 0) {
+                return cookie.substring(nameEQ.length);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * AC5.3, AC5.4: Nastavit cookie s expiration 365 dní
+     * @param {string} name - Název cookie
+     * @param {string} value - Hodnota
+     * @param {number} days - Počet dní (default 365)
+     */
+    setCookie(name, value, days = 365) {
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        const expires = 'expires=' + date.toUTCString();
+        document.cookie = name + '=' + value + ';' + expires + ';path=/';
     }
 
     /**
@@ -233,6 +281,13 @@ class GameUI {
                 this.handleCellClick(e.target);
             }
         });
+
+        // AC5.7: Obstacles checkbox - uložit do cookies při změně
+        if (this.obstaclesCheckbox) {
+            this.obstaclesCheckbox.addEventListener('change', (e) => {
+                this.setCookie('obstaclesEnabled', e.target.checked ? 'true' : 'false');
+            });
+        }
 
         // Reset button
         this.resetButton.addEventListener('click', () => {

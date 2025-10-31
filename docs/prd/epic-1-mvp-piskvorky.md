@@ -31,6 +31,7 @@ Draft
 ### 1.2: Detekce výhry a remízy
 ### 1.3: Reset hry a UI vylepšení
 ### 1.4: Režim s překážkami (Obstacles Mode)
+### 1.5: UI Vylepšení - Vycentrování & Cookie Persistenci
 
 ## Dependencies
 Žádné

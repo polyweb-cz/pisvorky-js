@@ -30,4 +30,4 @@ jobs:
           publish_dir: ./dist
           force_orphan: false
           cname: piskvorky.polyweb.cz
-          keep_files: true
+          keep_files: false

@@ -30,3 +30,4 @@ jobs:
           publish_dir: ./dist
           cname: piskvorky.polyweb.cz
           force_orphan: true
+          retention_days: 1

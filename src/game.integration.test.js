@@ -629,3 +629,170 @@ describe('GameUI - Grid Sizing (Story 4.10)', () => {
         expect(gridContainer.id).toBe('gridContainer');
     });
 });
+
+/**
+ * Story 4.14 & 4.15: Hamburger Menu & Controls Hidden
+ */
+describe('Story 4.14 & 4.15: Hamburger Menu & Settings Toggle', () => {
+    let game;
+    let gameUI;
+
+    beforeEach(() => {
+        // Vyčistit DOM
+        document.body.innerHTML = `
+            <div class="game-container">
+                <header class="game-header">
+                    <div class="turn-indicator">
+                        <span class="turn-label">Na tahu:</span>
+                        <span class="current-player" id="currentPlayer">X</span>
+                    </div>
+                    <button class="hamburger-button" id="hamburgerButton" aria-label="Nastavení" aria-expanded="false">☰</button>
+                    <div class="controls-fieldset">
+                        <div class="controls">
+                            <div class="game-size-select-group">
+                                <label for="gameSizeSelect">Velikost:</label>
+                                <select id="gameSizeSelect">
+                                    <option value="3">3×3</option>
+                                    <option value="10">10×10</option>
+                                    <option value="15" selected>15×15</option>
+                                </select>
+                            </div>
+                            <div class="obstacle-select-group">
+                                <label for="obstaclesSelect">Překážky:</label>
+                                <select id="obstaclesSelect">
+                                    <option value="no">Bez překážek</option>
+                                    <option value="yes">S překážkami</option>
+                                </select>
+                            </div>
+                            <button class="reset-button" id="resetButton">Nová hra</button>
+                        </div>
+                    </div>
+                </header>
+                <main class="game-main">
+                    <div class="grid-container" id="gridContainer"></div>
+                </main>
+            </div>
+            <div class="game-result-modal" id="gameResultModal">
+                <div class="modal-content">
+                    <h2 class="modal-title" id="gameResultMessage">Vítěz</h2>
+                    <button class="modal-button" id="modalCloseButton">Zavřít</button>
+                </div>
+            </div>
+        `;
+
+        localStorage.clear();
+
+        game = new TicTacToeGame(15);
+        gameUI = new GameUI(game);
+    });
+
+    describe('Story 4.14: Hamburger Button Toggle', () => {
+        it('Hamburger button existuje v DOM', () => {
+            const button = document.getElementById('hamburgerButton');
+            expect(button).toBeTruthy();
+            expect(button.tagName).toBe('BUTTON');
+        });
+
+        it('Hamburger button má správnou ikonu (☰) při zavřeném menu', () => {
+            const button = document.getElementById('hamburgerButton');
+            expect(button.textContent.trim()).toBe('☰');
+        });
+
+        it('Hamburger button má správné ARIA atributy', () => {
+            const button = document.getElementById('hamburgerButton');
+            expect(button.getAttribute('aria-label')).toBe('Nastavení');
+            expect(button.getAttribute('aria-expanded')).toBe('false');
+        });
+
+        it('Controls fieldset je defaultně bez třídy .open', () => {
+            const controls = document.querySelector('.controls-fieldset');
+            expect(controls.classList.contains('open')).toBe(false);
+        });
+
+        it('Kliknutí na hamburger přidá třídu .open', () => {
+            const button = document.getElementById('hamburgerButton');
+            const controls = document.querySelector('.controls-fieldset');
+
+            button.click();
+            expect(controls.classList.contains('open')).toBe(true);
+        });
+
+        it('Po kliknutí se ikona změní na ×', () => {
+            const button = document.getElementById('hamburgerButton');
+            button.click();
+            expect(button.textContent.trim()).toBe('×');
+        });
+
+        it('aria-expanded se změní na true při otevření', () => {
+            const button = document.getElementById('hamburgerButton');
+            button.click();
+            expect(button.getAttribute('aria-expanded')).toBe('true');
+        });
+
+        it('Druhé kliknutí zavře menu a vrátí ikonu na ☰', () => {
+            const button = document.getElementById('hamburgerButton');
+            const controls = document.querySelector('.controls-fieldset');
+
+            button.click(); // Otevřít
+            button.click(); // Zavřít
+
+            expect(controls.classList.contains('open')).toBe(false);
+            expect(button.textContent.trim()).toBe('☰');
+            expect(button.getAttribute('aria-expanded')).toBe('false');
+        });
+    });
+
+    describe('Story 4.15: localStorage persistence', () => {
+        it('Stav se ukládá do localStorage při otevření', () => {
+            const button = document.getElementById('hamburgerButton');
+            button.click();
+            expect(localStorage.getItem('settingsMenuOpen')).toBe('true');
+        });
+
+        it('Stav se ukládá do localStorage při zavření', () => {
+            const button = document.getElementById('hamburgerButton');
+            button.click(); // Otevřít
+            button.click(); // Zavřít
+            expect(localStorage.getItem('settingsMenuOpen')).toBe('false');
+        });
+
+        it('Při načtení bez localStorage je menu zavřené', () => {
+            localStorage.clear();
+            const newGame = new TicTacToeGame(15);
+            const newGameUI = new GameUI(newGame);
+
+            const controls = document.querySelector('.controls-fieldset');
+            expect(controls.classList.contains('open')).toBe(false);
+        });
+
+        it('Při načtení s localStorage=true je menu otevřené', () => {
+            localStorage.setItem('settingsMenuOpen', 'true');
+
+            const newGame = new TicTacToeGame(15);
+            const newGameUI = new GameUI(newGame);
+
+            const controls = document.querySelector('.controls-fieldset');
+            const button = document.getElementById('hamburgerButton');
+
+            expect(controls.classList.contains('open')).toBe(true);
+            expect(button.textContent.trim()).toBe('×');
+            expect(button.getAttribute('aria-expanded')).toBe('true');
+        });
+
+        it('Nadpis "Nastavení" neexistuje v DOM', () => {
+            const legend = document.querySelector('.controls-legend');
+            expect(legend).toBeNull();
+        });
+
+        it('Reset hry nemění stav menu', () => {
+            const button = document.getElementById('hamburgerButton');
+            button.click(); // Otevřít menu
+
+            const resetButton = document.getElementById('resetButton');
+            resetButton.click(); // Reset hry
+
+            const controls = document.querySelector('.controls-fieldset');
+            expect(controls.classList.contains('open')).toBe(true); // Stále otevřené
+        });
+    });
+});

@@ -202,6 +202,8 @@ class GameUI {
         this.modalCloseButton = document.getElementById('modalCloseButton');
         this.obstaclesSelect = document.getElementById('obstaclesSelect'); // Story 4.4: Změna z checkbox na select
         this.gameSizeSelect = document.getElementById('gameSizeSelect'); // Story 4.11: Select pro velikost hry
+        this.hamburgerButton = document.getElementById('hamburgerButton'); // Story 4.14: Hamburger menu button
+        this.controlsFieldset = document.querySelector('.controls-fieldset'); // Story 4.14, 4.15: Settings container
 
         this.init();
     }
@@ -214,6 +216,9 @@ class GameUI {
         if (this.gameSizeSelect) {
             this.gameSizeSelect.value = this.game.size;
         }
+
+        // Story 4.15: Obnovit stav menu z localStorage
+        this.restoreMenuState();
 
         // Story 4.5: Obnovit state selectu z URL hash
         this.restoreObstaclesFromURL();
@@ -238,6 +243,37 @@ class GameUI {
             const obstacles = generateRandomObstacles(this.game.bombCount, this.game.size);
             this.game.setObstacles(obstacles);
         }
+    }
+
+    /**
+     * Story 4.15: Obnovit stav hamburger menu z localStorage
+     * Výchozí stav: zavřeno (false)
+     */
+    restoreMenuState() {
+        if (!this.hamburgerButton || !this.controlsFieldset) return;
+
+        const isOpen = localStorage.getItem('settingsMenuOpen') === 'true';
+        if (isOpen) {
+            this.controlsFieldset.classList.add('open');
+            this.hamburgerButton.setAttribute('aria-expanded', 'true');
+            this.hamburgerButton.textContent = '×';
+        }
+    }
+
+    /**
+     * Story 4.14, 4.15: Toggle viditelnosti nastavení
+     * Přepíná třídu .open a ukládá stav do localStorage
+     */
+    toggleSettings() {
+        if (!this.hamburgerButton || !this.controlsFieldset) return;
+
+        const isOpen = this.controlsFieldset.classList.toggle('open');
+        // localStorage.setItem potřebuje string, nikoli boolean
+        localStorage.setItem('settingsMenuOpen', isOpen ? 'true' : 'false');
+
+        // Aktualizovat button ikonu a ARIA atribut
+        this.hamburgerButton.textContent = isOpen ? '×' : '☰';
+        this.hamburgerButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
 
     /**
@@ -366,6 +402,13 @@ class GameUI {
      * Připojení event listeners
      */
     attachEventListeners() {
+        // Story 4.14: Hamburger button - toggle nastavení
+        if (this.hamburgerButton) {
+            this.hamburgerButton.addEventListener('click', () => {
+                this.toggleSettings();
+            });
+        }
+
         // Event delegation pro klikání na pole
         this.gridContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('cell')) {

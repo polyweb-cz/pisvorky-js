@@ -14,12 +14,18 @@
                 <span class="turn-label">Na tahu:</span>
                 <span class="current-player" id="currentPlayer">X</span>
             </div>
-            <div class="controls">
-                <label class="obstacle-toggle">
-                    <input type="checkbox" id="obstaclesCheckbox" />
-                    <span>Chci překážky</span>
-                </label>
-                <button class="reset-button" id="resetButton">Nová hra</button>
+            <div class="controls-fieldset">
+                <div class="controls-legend">Nastavení</div>
+                <div class="controls">
+                    <div class="obstacle-select-group">
+                        <label for="obstaclesSelect">Překážky:</label>
+                        <select id="obstaclesSelect">
+                            <option value="no">Bez překážek</option>
+                            <option value="yes">S překážkami</option>
+                        </select>
+                    </div>
+                    <button class="reset-button" id="resetButton">Nová hra</button>
+                </div>
             </div>
         </header>
 

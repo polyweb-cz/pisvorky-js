@@ -67,34 +67,69 @@ body {
     color: #3498db;
 }
 
-/* Controls - flexbox kontejner pro checkbox a tlačítko */
+/* Controls Fieldset - wrapper s designem fieldset */
+.controls-fieldset {
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: white;
+}
+
+.controls-legend {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Controls - flexbox kontejner pro select a tlačítko */
 /* AC5.1, AC5.2: Vycentrování prvků v headeru */
 .controls {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
-/* Obstacle toggle - checkbox s labelem */
-.obstacle-toggle {
+/* Obstacle Select Group */
+.obstacle-select-group {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    cursor: pointer;
-    user-select: none;
 }
 
-.obstacle-toggle input[type="checkbox"] {
-    cursor: pointer;
-    width: 1.2rem;
-    height: 1.2rem;
-}
-
-.obstacle-toggle span {
-    font-size: 1rem;
+.obstacle-select-group label {
+    font-size: 0.95rem;
     color: #333;
     font-weight: 500;
+    white-space: nowrap;
+}
+
+.obstacle-select-group select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.3rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    cursor: pointer;
+    background: white;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.obstacle-select-group select:hover {
+    border-color: #999;
+    background: #f9f9f9;
+}
+
+.obstacle-select-group select:focus {
+    outline: none;
+    border-color: #EB5E00;
+    box-shadow: 0 0 3px rgba(235, 94, 0, 0.3);
 }
 
 /* Tlačítko reset */
@@ -409,6 +444,7 @@ body {
     text-align: center;
     border-top: 1px solid #e0e0e0;
     background-color: #fafafa;
+    border-radius: 0.5rem;
 }
 
 .footer p {

@@ -195,7 +195,7 @@ class GameUI {
         this.gameResultModal = document.getElementById('gameResultModal');
         this.gameResultMessage = document.getElementById('gameResultMessage');
         this.modalCloseButton = document.getElementById('modalCloseButton');
-        this.obstaclesCheckbox = document.getElementById('obstaclesCheckbox'); // AC4.1
+        this.obstaclesSelect = document.getElementById('obstaclesSelect'); // Story 4.4: Změna z checkbox na select
 
         this.init();
     }
@@ -204,26 +204,52 @@ class GameUI {
      * Inicializace UI - vytvoření mřížky a event listeners
      */
     init() {
-        // AC5.5, AC5.6: Obnovit state checkboxu ze cookies
-        this.restoreObstaclesFromCookie();
+        // Story 4.5: Obnovit state selectu z URL hash
+        this.restoreObstaclesFromURL();
         this.renderGrid();
         this.attachEventListeners();
         this.updateTurnIndicator();
     }
 
     /**
-     * AC5.5, AC5.6: Obnovit stav checkboxu ze cookies
-     * Pokud je cookies aktivní, automaticky generuje překážky
+     * Story 4.5: Obnovit stav selectu z URL hash
+     * Pokud je URL hash aktivní, automaticky generuje překážky
      */
-    restoreObstaclesFromCookie() {
-        if (!this.obstaclesCheckbox) return;
+    restoreObstaclesFromURL() {
+        if (!this.obstaclesSelect) return;
 
-        const cookieValue = this.getCookie('obstaclesEnabled');
-        if (cookieValue === 'true') {
-            this.obstaclesCheckbox.checked = true;
-            // Vygeneruj překážky při startu, pokud byl checkbox zapnutý
+        const enabled = this.getObstaclesFromHash();
+        this.obstaclesSelect.value = enabled ? 'yes' : 'no';
+
+        if (enabled) {
+            // Vygeneruj překážky při startu, pokud je URL hash na 'yes'
             const obstacles = generateRandomObstacles(15, this.game.size);
             this.game.setObstacles(obstacles);
+        }
+    }
+
+    /**
+     * Story 4.5: Čti stav překážek z URL hash
+     * @returns {boolean} true pokud jsou překážky zapnuty
+     */
+    getObstaclesFromHash() {
+        try {
+            const hash = window.location.hash.slice(1); // Odebrat #
+            const params = new URLSearchParams(hash);
+            return params.get('obstacles') === 'yes';
+        } catch {
+            return false; // Default: bez překážek
+        }
+    }
+
+    /**
+     * Story 4.5: Nastav stav překážek v URL hash
+     * @param {boolean} enabled - true pro "S překážkami"
+     */
+    setObstaclesHash(enabled) {
+        const newHash = enabled ? '#obstacles=yes' : '';
+        if (window.location.hash !== newHash) {
+            window.location.hash = newHash;
         }
     }
 
@@ -300,12 +326,25 @@ class GameUI {
             }
         });
 
-        // AC5.7: Obstacles checkbox - uložit do cookies při změně
-        if (this.obstaclesCheckbox) {
-            this.obstaclesCheckbox.addEventListener('change', (e) => {
-                this.setCookie('obstaclesEnabled', e.target.checked ? 'true' : 'false');
+        // Story 4.5: Obstacles select - uložit do URL hash při změně
+        if (this.obstaclesSelect) {
+            this.obstaclesSelect.addEventListener('change', (e) => {
+                const enableObstacles = e.target.value === 'yes';
+                this.setObstaclesHash(enableObstacles);
+                // Reset hru se novým nastavením
+                this.handleReset();
             });
         }
+
+        // Story 4.5: Poslouchej URL hash změny (back/forward button)
+        window.addEventListener('hashchange', () => {
+            const enabled = this.getObstaclesFromHash();
+            if (this.obstaclesSelect) {
+                this.obstaclesSelect.value = enabled ? 'yes' : 'no';
+            }
+            // Reset hru se novým nastavením
+            this.handleReset();
+        });
 
         // Reset button
         this.resetButton.addEventListener('click', () => {
@@ -398,17 +437,17 @@ class GameUI {
     /**
      * Obsluha resetu hry
      * AC2.8: Reset vrátí hru do výchozího stavu
+     * Story 4.4: Adaptováno z checkbox na select
      */
     handleReset() {
         this.game.reset();
 
-        // AC4.4: Pokud je checkbox zaškrtnutý, vygeneruj překážky
-        // AC4.8: Checkbox zůstává zaškrtnutý
-        if (this.obstaclesCheckbox && this.obstaclesCheckbox.checked) {
+        // AC4.4, Story 4.4: Pokud je select na 'yes', vygeneruj překážky
+        if (this.obstaclesSelect && this.obstaclesSelect.value === 'yes') {
             const obstacles = generateRandomObstacles(15, this.game.size);
             this.game.setObstacles(obstacles);
         } else {
-            // AC4.3: Bez checkboxu - žádné překážky
+            // AC4.3: Bez překážek
             this.game.clearObstacles();
         }
 

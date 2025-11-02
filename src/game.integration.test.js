@@ -16,12 +16,18 @@ function createMockDOM() {
                     <span class="turn-label">Na tahu:</span>
                     <span class="current-player" id="currentPlayer">X</span>
                 </div>
-                <div class="controls">
-                    <label class="obstacle-toggle">
-                        <input type="checkbox" id="obstaclesCheckbox" />
-                        <span>Překážky</span>
-                    </label>
-                    <button class="reset-button" id="resetButton">Nová hra</button>
+                <div class="controls-fieldset">
+                    <div class="controls-legend">Nastavení</div>
+                    <div class="controls">
+                        <div class="obstacle-select-group">
+                            <label for="obstaclesSelect">Překážky:</label>
+                            <select id="obstaclesSelect">
+                                <option value="no">Bez překážek</option>
+                                <option value="yes">S překážkami</option>
+                            </select>
+                        </div>
+                        <button class="reset-button" id="resetButton">Nová hra</button>
+                    </div>
                 </div>
             </header>
 
@@ -392,9 +398,9 @@ describe('GameUI - Obstacles Mode (Story 1.4)', () => {
         gameUI = new GameUI(game);
     });
 
-    it('Bez checkboxu - žádné překážky nejsou generovány', () => {
-        const checkbox = document.getElementById('obstaclesCheckbox');
-        expect(checkbox.checked).toBe(false);
+    it('Select na "Bez překážek" - žádné překážky nejsou generovány', () => {
+        const select = document.getElementById('obstaclesSelect');
+        expect(select.value).toBe('no');
 
         gameUI.handleReset();
 
@@ -402,9 +408,9 @@ describe('GameUI - Obstacles Mode (Story 1.4)', () => {
         expect(game.obstaclesSet.size).toBe(0);
     });
 
-    it('S checkboxem ON - 15 překážek se generuje', () => {
-        const checkbox = document.getElementById('obstaclesCheckbox');
-        checkbox.checked = true;
+    it('Select na "S překážkami" - 15 překážek se generuje', () => {
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
 
         gameUI.handleReset();
 
@@ -413,8 +419,8 @@ describe('GameUI - Obstacles Mode (Story 1.4)', () => {
     });
 
     it('Zaminovaná pole mají CSS class "obstacle"', () => {
-        const checkbox = document.getElementById('obstaclesCheckbox');
-        checkbox.checked = true;
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
 
         gameUI.handleReset();
 
@@ -424,8 +430,8 @@ describe('GameUI - Obstacles Mode (Story 1.4)', () => {
     });
 
     it('Kliknutí na zaminované pole se ignoruje', () => {
-        const checkbox = document.getElementById('obstaclesCheckbox');
-        checkbox.checked = true;
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
 
         gameUI.handleReset();
 
@@ -442,8 +448,8 @@ describe('GameUI - Obstacles Mode (Story 1.4)', () => {
     });
 
     it('Kliknutí na normální pole vedle zaminovaného funguje', () => {
-        const checkbox = document.getElementById('obstaclesCheckbox');
-        checkbox.checked = true;
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
 
         gameUI.handleReset();
 
@@ -459,33 +465,33 @@ describe('GameUI - Obstacles Mode (Story 1.4)', () => {
         }
     });
 
-    it('Checkbox zůstává zaškrtnutý po resetu', () => {
-        const checkbox = document.getElementById('obstaclesCheckbox');
-        checkbox.checked = true;
+    it('Select zůstává na "S překážkami" po resetu', () => {
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
 
         gameUI.handleReset();
 
-        expect(checkbox.checked).toBe(true);
+        expect(select.value).toBe('yes');
     });
 
-    it('Reset bez checkboxu odstraní překážky', () => {
-        const checkbox = document.getElementById('obstaclesCheckbox');
+    it('Reset na "Bez překážek" odstraní překážky', () => {
+        const select = document.getElementById('obstaclesSelect');
 
         // První hra s překážkami
-        checkbox.checked = true;
+        select.value = 'yes';
         gameUI.handleReset();
         expect(game.obstacles).toHaveLength(15);
 
-        // Unchecked checkbox
-        checkbox.checked = false;
+        // Změna selectu na 'no'
+        select.value = 'no';
         gameUI.handleReset();
 
         expect(game.obstacles).toHaveLength(0);
     });
 
-    it('Překážky se negenerují znovu při každém "Nové hře" s checkboxem ON', () => {
-        const checkbox = document.getElementById('obstaclesCheckbox');
-        checkbox.checked = true;
+    it('Překážky se negenerují znovu při každém "Nové hře" s selectem na "S překážkami"', () => {
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
 
         gameUI.handleReset();
         const obstacles1 = JSON.stringify(game.obstacles.sort());

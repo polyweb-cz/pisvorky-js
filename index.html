@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piškvorky</title>
+    <link rel="icon" type="image/svg+xml" href="/pisvorky-js/assets/favicon-BX9Iqbve.svg">
+  <script type="module" crossorigin src="/pisvorky-js/assets/index-ppuvwX7Q.js"></script>
+  <link rel="stylesheet" crossorigin href="/pisvorky-js/assets/index-DKK3XsCF.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>Piškvorky test 2</h1>
+            <div class="turn-indicator">
+                <span class="turn-label">Na tahu:</span>
+                <span class="current-player" id="currentPlayer">X</span>
+            </div>
+            <div class="controls">
+                <label class="obstacle-toggle">
+                    <input type="checkbox" id="obstaclesCheckbox" />
+                    <span>Chci překážky</span>
+                </label>
+                <button class="reset-button" id="resetButton">Nová hra</button>
+            </div>
+        </header>
+
+        <main class="game-main">
+            <div class="grid-container" id="gridContainer">
+                <!-- Grid bude vygenerován JavaScriptem -->
+            </div>
+        </main>
+    </div>
+
+    <!-- AC2.3, AC2.6: Modal pro výsledek hry -->
+    <div class="game-result-modal" id="gameResultModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="gameResultMessage">Vítěz: X</h2>
+            <button class="modal-button" id="modalCloseButton">Zavřít</button>
+        </div>
+    </div>
+
+    <!-- Story 3.2: Footer s copyright a linky -->
+    <footer class="footer">
+        <p>
+            © 2025 <a href="https://polyweb.cz" target="_blank" rel="noopener noreferrer">polyweb.cz</a>
+            —
+            Vytvořeno k testu <a href="https://docs.claude.com/en/docs/claude-code/claude_code_docs_map.md" target="_blank" rel="noopener noreferrer">BMAD framework</a>
+            —
+            <a href="https://github.com/polyweb-cz/pisvorky-js" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </p>
+    </footer>
+
+</body>
+</html>

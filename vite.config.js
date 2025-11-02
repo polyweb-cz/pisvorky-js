@@ -4,6 +4,7 @@ export default defineConfig({
   base: '/pisvorky-js/',
   root: './src',
   build: {
-    outDir: '../dist'
+    outDir: '../dist',
+    emptyOutDir: true
   }
 });

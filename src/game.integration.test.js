@@ -503,3 +503,80 @@ describe('GameUI - Obstacles Mode (Story 1.4)', () => {
         expect(obstacles1).not.toEqual(obstacles2);
     });
 });
+
+describe('GameUI - Obstacles Responsiveness (Story 4.8)', () => {
+    let game;
+    let gameUI;
+
+    beforeEach(() => {
+        createMockDOM();
+        game = new TicTacToeGame(15);
+        gameUI = new GameUI(game);
+    });
+
+    it('Story 4.8: Bomby - .cell.obstacle nemá hardcoded font-size', () => {
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
+        gameUI.handleReset();
+
+        const obstacleCell = document.querySelector('.cell.obstacle');
+        const styles = window.getComputedStyle(obstacleCell);
+
+        // Bomby by měly dědít font-size z .cell, ne mít vlastní hardcoded
+        // Na desktopu .cell má 1.2rem (v mockDOM bez media queries)
+        const fontSize = styles.fontSize;
+        expect(fontSize).toBeDefined();
+        // Ověřit, že to není hardcoded 1.5rem z old CSS
+        expect(fontSize).not.toBe('24px'); // 1.5rem je ~24px
+    });
+
+    it('Story 4.8: Bomby a X/O - proporcionální font-size', () => {
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
+        gameUI.handleReset();
+
+        // Klikni na pole bez překážek, aby se tam objevilo X
+        const cell = document.querySelector('[data-row="7"][data-col="7"]');
+        const isObstacle = game.obstacles.some(([r, c]) => r === 7 && c === 7);
+
+        if (!isObstacle) {
+            cell.click();
+
+            const xCell = document.querySelector('[data-value="X"]');
+            const obstacleCell = document.querySelector('.cell.obstacle');
+
+            const xStyle = window.getComputedStyle(xCell);
+            const obstacleStyle = window.getComputedStyle(obstacleCell);
+
+            // Bomby a X/O by měly mít stejný font-size (inheritance)
+            expect(xStyle.fontSize).toBe(obstacleStyle.fontSize);
+        }
+    });
+
+    it('Story 4.8: .cell.obstacle element existuje a je správně renderován', () => {
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
+        gameUI.handleReset();
+
+        const obstacleCells = document.querySelectorAll('.cell.obstacle');
+
+        // Mělo by být 15 překážek
+        expect(obstacleCells.length).toBe(15);
+        // Všechny by měly být div elementy
+        obstacleCells.forEach(cell => {
+            expect(cell.tagName).toBe('DIV');
+        });
+    });
+
+    it('Story 4.8: .cell.obstacle má CSS class obstacle a occupied', () => {
+        const select = document.getElementById('obstaclesSelect');
+        select.value = 'yes';
+        gameUI.handleReset();
+
+        const obstacleCell = document.querySelector('.cell.obstacle');
+
+        // Překážky by měly mít obě třídy
+        expect(obstacleCell.classList.contains('obstacle')).toBe(true);
+        expect(obstacleCell.classList.contains('occupied')).toBe(true);
+    });
+});

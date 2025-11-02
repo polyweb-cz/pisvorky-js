@@ -19,6 +19,14 @@ function createMockDOM() {
                 <div class="controls-fieldset">
                     <div class="controls-legend">Nastavení</div>
                     <div class="controls">
+                        <div class="game-size-select-group">
+                            <label for="gameSizeSelect">Velikost:</label>
+                            <select id="gameSizeSelect">
+                                <option value="3">3×3 (Snadné)</option>
+                                <option value="10">10×10 (Střední)</option>
+                                <option value="15" selected>15×15 (Těžké)</option>
+                            </select>
+                        </div>
                         <div class="obstacle-select-group">
                             <label for="obstaclesSelect">Překážky:</label>
                             <select id="obstaclesSelect">
@@ -578,5 +586,46 @@ describe('GameUI - Obstacles Responsiveness (Story 4.8)', () => {
         // Překážky by měly mít obě třídy
         expect(obstacleCell.classList.contains('obstacle')).toBe(true);
         expect(obstacleCell.classList.contains('occupied')).toBe(true);
+    });
+});
+
+describe('GameUI - Grid Sizing (Story 4.10)', () => {
+    let game;
+    let gameUI;
+
+    beforeEach(() => {
+        createMockDOM();
+        game = new TicTacToeGame(15);
+        gameUI = new GameUI(game);
+    });
+
+    it('Story 4.10: Grid lze označit třídou .size-3', () => {
+        const gridContainer = document.getElementById('gridContainer');
+        gridContainer.classList.add('size-3');
+
+        expect(gridContainer.classList.contains('size-3')).toBe(true);
+        expect(gridContainer.classList.contains('grid-container')).toBe(true);
+    });
+
+    it('Story 4.10: Grid lze označit třídou .size-10', () => {
+        const gridContainer = document.getElementById('gridContainer');
+        gridContainer.classList.add('size-10');
+
+        expect(gridContainer.classList.contains('size-10')).toBe(true);
+    });
+
+    it('Story 4.10: Grid lze označit třídou .size-15', () => {
+        const gridContainer = document.getElementById('gridContainer');
+        gridContainer.classList.add('size-15');
+
+        expect(gridContainer.classList.contains('size-15')).toBe(true);
+    });
+
+    it('Story 4.10: Grid element je div s ID gridContainer', () => {
+        const gridContainer = document.getElementById('gridContainer');
+
+        expect(gridContainer).toBeDefined();
+        expect(gridContainer.tagName).toBe('DIV');
+        expect(gridContainer.id).toBe('gridContainer');
     });
 });

@@ -28,6 +28,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          destination_dir: ./dist
           cname: piskvorky.polyweb.cz
           force_orphan: true
-          retention_days: 1

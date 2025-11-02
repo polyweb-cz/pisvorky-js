@@ -8,7 +8,7 @@ A fully functional 15×15 tic-tac-toe game with win detection, obstacles mode, a
 
 ## 🎮 Live Demo
 
-[Play Piškvorky on GitHub Pages](https://polyweb-cz.github.io/pisvorky-js/)
+[Play Piškvorky](https://piskvorky.polyweb.cz/) — [GitHub Pages Mirror](https://polyweb-cz.github.io/pisvorky-js/)
 
 ## 📋 Features
 
@@ -65,7 +65,7 @@ npm run preview    # Preview production build locally
 
 The project automatically deploys to GitHub Pages on every push to the `main` branch.
 
-**Current Live URL:** [https://polyweb-cz.github.io/pisvorky-js/](https://polyweb-cz.github.io/pisvorky-js/)
+**Current Live URL:** [https://piskvorky.polyweb.cz/](https://piskvorky.polyweb.cz/) (Custom Domain) or [GitHub Pages](https://polyweb-cz.github.io/pisvorky-js/)
 
 #### For Your Own Fork:
 
@@ -238,7 +238,8 @@ This script:
 ## 🔗 Related Links
 
 - **Repository**: [github.com/polyweb-cz/pisvorky-js](https://github.com/polyweb-cz/pisvorky-js)
-- **Live Demo**: [polyweb-cz.github.io/pisvorky-js](https://polyweb-cz.github.io/pisvorky-js/)
+- **Live Demo**: [piskvorky.polyweb.cz](https://piskvorky.polyweb.cz/)
+- **Mirror**: [polyweb-cz.github.io/pisvorky-js](https://polyweb-cz.github.io/pisvorky-js/)
 - **Vite Docs**: [vitejs.dev](https://vitejs.dev)
 - **Vitest Docs**: [vitest.dev](https://vitest.dev)
 

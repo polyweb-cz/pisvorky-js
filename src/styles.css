@@ -329,7 +329,7 @@ body {
 
 .modal-button {
     padding: 0.875rem 2rem;
-    background: #667eea;
+    background: #EB5E00;
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -340,9 +340,9 @@ body {
 }
 
 .modal-button:hover {
-    background: #5568d3;
+    background: #D64A00;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(235, 94, 0, 0.4);
 }
 
 .modal-button:active {

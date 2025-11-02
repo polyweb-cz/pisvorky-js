@@ -28,8 +28,12 @@ body {
 
 /* Header s nadpisem a indikátorem */
 .game-header {
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
 }
 
 /* Indikátor tahu */
@@ -40,7 +44,6 @@ body {
     padding: 0.75rem 1.5rem;
     background: #f0f0f0;
     border-radius: 2rem;
-    margin-bottom: 1rem;
 }
 
 .turn-label {
@@ -71,7 +74,6 @@ body {
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    margin-top: 1rem;
 }
 
 /* Obstacle toggle - checkbox s labelem */

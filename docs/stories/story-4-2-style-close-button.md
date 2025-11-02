@@ -1,7 +1,7 @@
-# Story 1.2: Stylizace zavíracího tlačítka
+# Story 4.2: Stylizace zavíracího tlačítka
 
 ## Epic
-Epic 1: Design & UI Refresh
+Epic 4: Design & UI Refresh
 
 ## User Story
 

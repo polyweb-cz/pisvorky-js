@@ -1,7 +1,7 @@
-# Story 1.1: Update barvy a layout - hlavní panel
+# Story 4.1: Update barvy a layout - hlavní panel
 
 ## Epic
-Epic 1: Design & UI Refresh
+Epic 4: Design & UI Refresh
 
 ## User Story
 

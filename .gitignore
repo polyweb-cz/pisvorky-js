@@ -1,6 +1,7 @@
 # BMAD (local only)
 .bmad-core/
 .bmad-*/
+!.bmad-core/PROJECT_GUIDELINES.md
 
 # Dependencies
 node_modules/

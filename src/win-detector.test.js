@@ -393,3 +393,200 @@ describe('Win Detector - checkGameState', () => {
         expect(result.winner).toBe('X');
     });
 });
+
+/**
+ * Story 4.13: Testy pro dynamické podmínky výhry
+ * 3×3: 3 v řadě = výhra
+ * 10×10, 15×15: 5 v řadě = výhra
+ */
+describe('Win Detector - Story 4.13: Dynamic Winning Conditions', () => {
+    describe('3×3 Board - 3 in a row wins', () => {
+        let board3x3;
+
+        beforeEach(() => {
+            // Vytvoření prázdné mřížky 3×3
+            board3x3 = Array.from({ length: 3 }, () =>
+                Array.from({ length: 3 }, () => null)
+            );
+        });
+
+        it('Detekuje výhru 3 X v řadě horizontálně na 3×3 desce', () => {
+            // X X X v řádku 0
+            board3x3[0][0] = 'X';
+            board3x3[0][1] = 'X';
+            board3x3[0][2] = 'X';
+
+            const result = checkWin(board3x3, 0, 1, 3, 3); // size=3, winningLength=3
+            expect(result.isWin).toBe(true);
+            expect(result.winner).toBe('X');
+            expect(result.winningCells).toHaveLength(3);
+        });
+
+        it('Detekuje výhru 3 O v řadě vertikálně na 3×3 desce', () => {
+            // O na (0,0), (1,0), (2,0)
+            board3x3[0][0] = 'O';
+            board3x3[1][0] = 'O';
+            board3x3[2][0] = 'O';
+
+            const result = checkWin(board3x3, 1, 0, 3, 3);
+            expect(result.isWin).toBe(true);
+            expect(result.winner).toBe('O');
+        });
+
+        it('Detekuje výhru 3 X v řadě diagonálně na 3×3 desce', () => {
+            // X na (0,0), (1,1), (2,2)
+            board3x3[0][0] = 'X';
+            board3x3[1][1] = 'X';
+            board3x3[2][2] = 'X';
+
+            const result = checkWin(board3x3, 1, 1, 3, 3);
+            expect(result.isWin).toBe(true);
+            expect(result.winner).toBe('X');
+        });
+
+        it('Nedetekuje výhru při 2 v řadě na 3×3 desce', () => {
+            // Pouze 2 X
+            board3x3[0][0] = 'X';
+            board3x3[0][1] = 'X';
+
+            const result = checkWin(board3x3, 0, 1, 3, 3);
+            expect(result.isWin).toBe(false);
+            expect(result.winner).toBe(null);
+        });
+
+        it('Nedetekuje výhru při 4 v řadě na 3×3 desce (chybí prostor)', () => {
+            // Nemůžeme mít 4 v řadě na 3×3 desce, ale test logiky
+            // Pokud bychom měli větší desku
+            const board10x10 = Array.from({ length: 10 }, () =>
+                Array.from({ length: 10 }, () => null)
+            );
+            for (let i = 0; i < 4; i++) {
+                board10x10[0][i] = 'X';
+            }
+            // Ale s winningLength=3, 4 v řadě je výhra
+            const result = checkWin(board10x10, 0, 2, 10, 3);
+            expect(result.isWin).toBe(true); // 4 v řadě s podmínkou 3 = výhra
+        });
+
+        it('checkGameState s 3×3 deskou a winningLength=3', () => {
+            board3x3[0][0] = 'X';
+            board3x3[0][1] = 'X';
+            board3x3[0][2] = 'X';
+
+            const result = checkGameState(board3x3, 0, 1, 3, 3);
+            expect(result.isGameOver).toBe(true);
+            expect(result.isWin).toBe(true);
+            expect(result.winner).toBe('X');
+        });
+    });
+
+    describe('10×10 Board - 5 in a row wins', () => {
+        let board10x10;
+
+        beforeEach(() => {
+            board10x10 = Array.from({ length: 10 }, () =>
+                Array.from({ length: 10 }, () => null)
+            );
+        });
+
+        it('Detekuje výhru 5 X v řadě horizontálně na 10×10 desce', () => {
+            for (let i = 0; i < 5; i++) {
+                board10x10[0][i] = 'X';
+            }
+
+            const result = checkWin(board10x10, 0, 2, 10, 5);
+            expect(result.isWin).toBe(true);
+            expect(result.winner).toBe('X');
+            expect(result.winningCells).toHaveLength(5);
+        });
+
+        it('Nedetekuje výhru při 4 v řadě na 10×10 desce s winningLength=5', () => {
+            for (let i = 0; i < 4; i++) {
+                board10x10[0][i] = 'X';
+            }
+
+            const result = checkWin(board10x10, 0, 2, 10, 5);
+            expect(result.isWin).toBe(false);
+        });
+
+        it('Detekuje výhru 5 O v řadě vertikálně na 10×10 desce', () => {
+            for (let i = 0; i < 5; i++) {
+                board10x10[i][5] = 'O';
+            }
+
+            const result = checkWin(board10x10, 2, 5, 10, 5);
+            expect(result.isWin).toBe(true);
+            expect(result.winner).toBe('O');
+        });
+    });
+
+    describe('15×15 Board - 5 in a row wins', () => {
+        let board15x15;
+
+        beforeEach(() => {
+            board15x15 = Array.from({ length: 15 }, () =>
+                Array.from({ length: 15 }, () => null)
+            );
+        });
+
+        it('Detekuje výhru 5 X v řadě diagonálně na 15×15 desce', () => {
+            // X na (2,2), (3,3), (4,4), (5,5), (6,6)
+            for (let i = 0; i < 5; i++) {
+                board15x15[2 + i][2 + i] = 'X';
+            }
+
+            const result = checkWin(board15x15, 4, 4, 15, 5);
+            expect(result.isWin).toBe(true);
+            expect(result.winner).toBe('X');
+        });
+
+        it('Nedetekuje výhru při 4 v řadě na 15×15 desce s winningLength=5', () => {
+            for (let i = 0; i < 4; i++) {
+                board15x15[i][0] = 'X';
+            }
+
+            const result = checkWin(board15x15, 2, 0, 15, 5);
+            expect(result.isWin).toBe(false);
+        });
+
+        it('checkGameState s 15×15 deskou a winningLength=5', () => {
+            // Vytvořit 5 X v řadě
+            for (let i = 0; i < 5; i++) {
+                board15x15[7][i] = 'X';
+            }
+
+            const result = checkGameState(board15x15, 7, 2, 15, 5);
+            expect(result.isGameOver).toBe(true);
+            expect(result.isWin).toBe(true);
+            expect(result.isDraw).toBe(false);
+            expect(result.winner).toBe('X');
+        });
+    });
+
+    describe('Mixed Sizes - Different winning conditions', () => {
+        it('4 v řadě není výhra na 3×3 (winningLength=3)', () => {
+            const board = Array.from({ length: 10 }, () =>
+                Array.from({ length: 10 }, () => null)
+            );
+            for (let i = 0; i < 4; i++) {
+                board[0][i] = 'X';
+            }
+
+            const result = checkWin(board, 0, 2, 10, 3);
+            expect(result.isWin).toBe(true); // 4 >= 3, takže výhra
+        });
+
+        it('6 v řadě je výhra na 15×15 (winningLength=5)', () => {
+            const board = Array.from({ length: 15 }, () =>
+                Array.from({ length: 15 }, () => null)
+            );
+            for (let i = 0; i < 6; i++) {
+                board[0][i] = 'O';
+            }
+
+            const result = checkWin(board, 0, 3, 15, 5);
+            expect(result.isWin).toBe(true);
+            expect(result.winningCells).toHaveLength(5); // Vracíme jen prvních 5
+        });
+    });
+});

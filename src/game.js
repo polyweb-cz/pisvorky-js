@@ -20,6 +20,10 @@ class TicTacToeGame {
         this.winningCells = [];
         this.obstacles = []; // AC4.4: Pole s pozicemi zaminovaných polí
         this.obstaclesSet = new Set(); // Pro rychlé hledání O(1)
+
+        // Story 4.11: Dynamické nastavení dle velikosti hry
+        this.winningLength = size === 3 ? 3 : 5; // 3×3 = 3 v řadě, jinak 5
+        this.bombCount = size === 3 ? 1 : (size === 10 ? 10 : 15); // Bomby dle velikosti
     }
 
     /**
@@ -64,7 +68,8 @@ class TicTacToeGame {
         this.moveHistory.push({ row, col, player: this.currentPlayer });
 
         // AC2.1: Kontrola výhry/remízy po tahu
-        const gameStateResult = checkGameState(this.gameState, row, col, this.size);
+        // Story 4.13: Předat winningLength pro dynamické podmínky výhry
+        const gameStateResult = checkGameState(this.gameState, row, col, this.size, this.winningLength);
 
         if (gameStateResult.isGameOver) {
             this.gameOver = true;
@@ -196,6 +201,7 @@ class GameUI {
         this.gameResultMessage = document.getElementById('gameResultMessage');
         this.modalCloseButton = document.getElementById('modalCloseButton');
         this.obstaclesSelect = document.getElementById('obstaclesSelect'); // Story 4.4: Změna z checkbox na select
+        this.gameSizeSelect = document.getElementById('gameSizeSelect'); // Story 4.11: Select pro velikost hry
 
         this.init();
     }
@@ -204,6 +210,11 @@ class GameUI {
      * Inicializace UI - vytvoření mřížky a event listeners
      */
     init() {
+        // Story 4.12: Synchronizovat size select s URL hash
+        if (this.gameSizeSelect) {
+            this.gameSizeSelect.value = this.game.size;
+        }
+
         // Story 4.5: Obnovit state selectu z URL hash
         this.restoreObstaclesFromURL();
         this.renderGrid();
@@ -223,7 +234,8 @@ class GameUI {
 
         if (enabled) {
             // Vygeneruj překážky při startu, pokud je URL hash na 'yes'
-            const obstacles = generateRandomObstacles(15, this.game.size);
+            // Story 4.11: Dynamický počet bomb dle velikosti
+            const obstacles = generateRandomObstacles(this.game.bombCount, this.game.size);
             this.game.setObstacles(obstacles);
         }
     }
@@ -251,6 +263,35 @@ class GameUI {
         if (window.location.hash !== newHash) {
             window.location.hash = newHash;
         }
+    }
+
+    /**
+     * Story 4.12: Načti game state (size + obstacles) z URL hash
+     * @returns {Object} {size: number, obstacles: boolean}
+     */
+    getGameStateFromHash() {
+        try {
+            const hash = window.location.hash.slice(1); // Odebrat #
+            const params = new URLSearchParams(hash);
+            return {
+                size: parseInt(params.get('size')) || 15, // Default 15×15
+                obstacles: params.get('obstacles') === 'yes'
+            };
+        } catch {
+            return { size: 15, obstacles: false }; // Default state
+        }
+    }
+
+    /**
+     * Story 4.12: Nastav game state (size + obstacles) do URL hash
+     * @param {number} size - velikost hry (3, 10, 15)
+     * @param {boolean} obstacles - true pro "S překážkami"
+     */
+    setGameStateHash(size, obstacles) {
+        const params = new URLSearchParams();
+        params.set('size', size);
+        params.set('obstacles', obstacles ? 'yes' : 'no');
+        window.location.hash = params.toString();
     }
 
     /**
@@ -290,6 +331,12 @@ class GameUI {
     renderGrid() {
         this.gridContainer.innerHTML = '';
 
+        // Story 4.11: Přidat CSS třídu pro grid velikost
+        // Odebrat všechny stare .size-X třídy
+        this.gridContainer.classList.remove('size-3', 'size-10', 'size-15');
+        // Přidat novou třídu dle velikosti
+        this.gridContainer.classList.add(`size-${this.game.size}`);
+
         for (let row = 0; row < this.game.size; row++) {
             for (let col = 0; col < this.game.size; col++) {
                 const cell = document.createElement('div');
@@ -326,24 +373,40 @@ class GameUI {
             }
         });
 
+        // Story 4.11, Story 4.12: Game Size select - změnit velikost hry a uložit do URL
+        if (this.gameSizeSelect) {
+            this.gameSizeSelect.addEventListener('change', (e) => {
+                const newSize = parseInt(e.target.value);
+                const obstacles = this.obstaclesSelect ? this.obstaclesSelect.value === 'yes' : false;
+                // Uložit do URL hash (trigger hashchange)
+                this.setGameStateHash(newSize, obstacles);
+            });
+        }
+
         // Story 4.5: Obstacles select - uložit do URL hash při změně
         if (this.obstaclesSelect) {
             this.obstaclesSelect.addEventListener('change', (e) => {
                 const enableObstacles = e.target.value === 'yes';
-                this.setObstaclesHash(enableObstacles);
-                // Reset hru se novým nastavením
-                this.handleReset();
+                // Zachovat aktuální velikost
+                const currentSize = this.game.size;
+                this.setGameStateHash(currentSize, enableObstacles);
             });
         }
 
-        // Story 4.5: Poslouchej URL hash změny (back/forward button)
+        // Story 4.5, 4.12: Poslouchej URL hash změny (back/forward button)
         window.addEventListener('hashchange', () => {
-            const enabled = this.getObstaclesFromHash();
-            if (this.obstaclesSelect) {
-                this.obstaclesSelect.value = enabled ? 'yes' : 'no';
+            const gameState = this.getGameStateFromHash();
+
+            // Pokud se změnila velikost, je potřeba vytvořit novou hru
+            if (gameState.size !== this.game.size) {
+                this.reinitializeGameWithSize(gameState.size, gameState.obstacles);
+            } else {
+                // Pouze změna překážek - reset existující hry
+                if (this.obstaclesSelect) {
+                    this.obstaclesSelect.value = gameState.obstacles ? 'yes' : 'no';
+                }
+                this.handleReset();
             }
-            // Reset hru se novým nastavením
-            this.handleReset();
         });
 
         // Reset button
@@ -435,6 +498,39 @@ class GameUI {
     }
 
     /**
+     * Story 4.11, 4.12: Reinicializace hry s novou velikostí
+     * @param {number} newSize - Nová velikost (3, 10, 15)
+     * @param {boolean} obstacles - Mají být překážky?
+     */
+    reinitializeGameWithSize(newSize, obstacles) {
+        // Vytvořit novou hru s novou velikostí
+        const newGame = new TicTacToeGame(newSize);
+
+        // Nastavit překážky, pokud jsou požadovány
+        if (obstacles) {
+            const newObstacles = generateRandomObstacles(newGame.bombCount, newGame.size);
+            newGame.setObstacles(newObstacles);
+        }
+
+        // Aktualizovat globální referenci
+        window.game = newGame;
+        this.game = newGame;
+
+        // Aktualizovat selects
+        if (this.gameSizeSelect) {
+            this.gameSizeSelect.value = newSize;
+        }
+        if (this.obstaclesSelect) {
+            this.obstaclesSelect.value = obstacles ? 'yes' : 'no';
+        }
+
+        // Překreslit UI
+        this.renderGrid();
+        this.updateTurnIndicator();
+        this.hideModal();
+    }
+
+    /**
      * Obsluha resetu hry
      * AC2.8: Reset vrátí hru do výchozího stavu
      * Story 4.4: Adaptováno z checkbox na select
@@ -443,8 +539,9 @@ class GameUI {
         this.game.reset();
 
         // AC4.4, Story 4.4: Pokud je select na 'yes', vygeneruj překážky
+        // Story 4.11: Dynamický počet bomb dle velikosti
         if (this.obstaclesSelect && this.obstaclesSelect.value === 'yes') {
-            const obstacles = generateRandomObstacles(15, this.game.size);
+            const obstacles = generateRandomObstacles(this.game.bombCount, this.game.size);
             this.game.setObstacles(obstacles);
         } else {
             // AC4.3: Bez překážek
@@ -517,7 +614,20 @@ let gameUI;
 
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
-        game = new TicTacToeGame(15);
+        // Story 4.12: Načti velikost z URL hash, default 15×15
+        let initialSize = 15;
+        try {
+            const hash = window.location.hash.slice(1);
+            const params = new URLSearchParams(hash);
+            const sizeFromURL = parseInt(params.get('size'));
+            if (sizeFromURL && [3, 10, 15].includes(sizeFromURL)) {
+                initialSize = sizeFromURL;
+            }
+        } catch {
+            // Ignorovat chyby, použít default
+        }
+
+        game = new TicTacToeGame(initialSize);
         gameUI = new GameUI(game);
     });
 }

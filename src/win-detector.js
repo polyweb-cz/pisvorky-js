@@ -11,13 +11,15 @@
 
 /**
  * Hlavní funkce pro detekci výhry
+ * Story 4.13: Dynamická podmínka výhry (3 pro 3×3, 5 pro ostatní)
  * @param {Array<Array<string|null>>} gameState - 2D pole herního stavu
  * @param {number} lastRow - poslední tahem umístěný řádek
  * @param {number} lastCol - poslední tahem umístěný sloupec
- * @param {number} size - velikost mřížky (15)
+ * @param {number} size - velikost mřížky (3, 10, 15)
+ * @param {number} winningLength - počet v řadě pro výhru (3 nebo 5)
  * @returns {{isWin: boolean, winner: string|null, winningCells: Array<Array<number>>}}
  */
-export function checkWin(gameState, lastRow, lastCol, size = 15) {
+export function checkWin(gameState, lastRow, lastCol, size = 15, winningLength = 5) {
     const player = gameState[lastRow][lastCol];
 
     // Pokud pole není obsazené, nemůže být výhra
@@ -34,7 +36,7 @@ export function checkWin(gameState, lastRow, lastCol, size = 15) {
     ];
 
     for (const direction of directions) {
-        const result = checkDirection(gameState, lastRow, lastCol, direction.dr, direction.dc, size);
+        const result = checkDirection(gameState, lastRow, lastCol, direction.dr, direction.dc, size, winningLength);
         if (result.isWin) {
             return {
                 isWin: true,
@@ -49,15 +51,17 @@ export function checkWin(gameState, lastRow, lastCol, size = 15) {
 
 /**
  * Kontrola jedného směru od posledního tahu
+ * Story 4.13: Dynamická podmínka výhry
  * @param {Array<Array<string|null>>} gameState - herní stav
  * @param {number} row - řádek posledního tahu
  * @param {number} col - sloupec posledního tahu
  * @param {number} dr - delta row (směr po řádcích)
  * @param {number} dc - delta col (směr po sloupcích)
  * @param {number} size - velikost mřížky
+ * @param {number} winningLength - počet v řadě pro výhru
  * @returns {{isWin: boolean, cells: Array<Array<number>>}}
  */
-function checkDirection(gameState, row, col, dr, dc, size) {
+function checkDirection(gameState, row, col, dr, dc, size, winningLength = 5) {
     const player = gameState[row][col];
     const cells = [[row, col]]; // Začínáme s pozicí posledního tahu
 
@@ -79,11 +83,11 @@ function checkDirection(gameState, row, col, dr, dc, size) {
         c -= dc;
     }
 
-    // Výhra = 5 nebo více políček v řadě
-    const isWin = cells.length >= 5;
+    // Story 4.13: Výhra = dynamický počet políček v řadě
+    const isWin = cells.length >= winningLength;
 
-    // Pokud je více než 5, vezmi jen prvních 5 (pro zvýraznění)
-    const winningCells = isWin ? cells.slice(0, 5) : [];
+    // Pokud je více než winningLength, vezmi jen prvních N (pro zvýraznění)
+    const winningCells = isWin ? cells.slice(0, winningLength) : [];
 
     return { isWin, cells: winningCells };
 }
@@ -107,11 +111,12 @@ export function checkDraw(gameState, size = 15) {
 
 /**
  * Kompletní kontrola stavu hry po tahu
- * Kombinuje checkWin a checkDraw
+ * Story 4.13: Kombinuje checkWin a checkDraw s dynamickou podmínkou výhry
  * @param {Array<Array<string|null>>} gameState - herní stav
  * @param {number} lastRow - poslední tahem umístěný řádek
  * @param {number} lastCol - poslední tahem umístěný sloupec
- * @param {number} size - velikost mřížky
+ * @param {number} size - velikost mřížky (3, 10, 15)
+ * @param {number} winningLength - počet v řadě pro výhru (3 nebo 5)
  * @returns {{
  *   isGameOver: boolean,
  *   isWin: boolean,
@@ -120,9 +125,9 @@ export function checkDraw(gameState, size = 15) {
  *   winningCells: Array<Array<number>>
  * }}
  */
-export function checkGameState(gameState, lastRow, lastCol, size = 15) {
+export function checkGameState(gameState, lastRow, lastCol, size = 15, winningLength = 5) {
     // Nejdříve kontrola výhry
-    const winResult = checkWin(gameState, lastRow, lastCol, size);
+    const winResult = checkWin(gameState, lastRow, lastCol, size, winningLength);
 
     if (winResult.isWin) {
         return {
